@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { useAppDispatch } from '../../hooks/hooks';
 import { formatDistanceToNow } from 'date-fns';
 import { MessageCircle, Search } from 'lucide-react';
 import { RootState } from '../../store';
@@ -11,7 +12,7 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 const ChatListPage: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { chats, isLoading } = useSelector((state: RootState) => state.chat);
 
   useEffect(() => {

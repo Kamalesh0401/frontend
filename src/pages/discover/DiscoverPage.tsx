@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+import { useAppDispatch } from '../../hooks/hooks';
+import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { Heart, X, Zap, MapPin, Camera, Star } from 'lucide-react';
 import { RootState } from '../../store';
 import { getMatches, addViewedProfile, removeMatch } from '../../store/slices/profileSlice';
@@ -11,10 +12,13 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 const DiscoverPage: React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const { matches, isLoading } = useSelector((state: RootState) => state.profile);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [imageIndex, setImageIndex] = useState(0);
+
+    const x = useMotionValue(0);
+    const rotate = useTransform(x, [-150, 0, 150], [-15, 0, 15]); // clamp between -15 and +15
 
     useEffect(() => {
         dispatch(getMatches());
@@ -107,24 +111,26 @@ const DiscoverPage: React.FC = () => {
                 <div className="relative h-[600px] perspective-1000">
                     <AnimatePresence>
                         {matches.slice(currentIndex, currentIndex + 3).map((profile, index) => (
+
                             <motion.div
                                 key={profile.id}
-                                className={`absolute inset-0 ${index === 0 ? 'z-30' : index === 1 ? 'z-20' : 'z-10'}`}
+                                className={`absolute inset-0 ${index === 0 ? "z-30" : index === 1 ? "z-20" : "z-10"}`}
                                 style={{
                                     transform: `scale(${1 - index * 0.02}) translateY(${index * 4}px)`,
+                                    x,   // bind horizontal drag
+                                    rotate, // bind rotation based on drag
                                 }}
-                                drag={index === 0 ? 'x' : false}
+                                drag={index === 0 ? "x" : false}
                                 dragConstraints={{ left: 0, right: 0 }}
                                 onDragEnd={(_, info) => index === 0 && handleDragEnd(info)}
                                 whileDrag={{
-                                    rotate: Math.max(-15, Math.min(15, info => info.offset.x / 10)),
-                                    scale: 1.02
+                                    scale: 1.02, // only scale is static
                                 }}
                                 exit={{
                                     x: Math.random() > 0.5 ? 300 : -300,
                                     opacity: 0,
                                     scale: 0.8,
-                                    transition: { duration: 0.3 }
+                                    transition: { duration: 0.3 },
                                 }}
                             >
                                 <Card className="h-full overflow-hidden">
@@ -225,7 +231,7 @@ const DiscoverPage: React.FC = () => {
                         <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => toast.info('Super Like feature coming soon!')}
+                            onClick={() => toast('Super Like feature coming soon!')}
                             className="w-12 h-12 bg-white border-2 border-blue-300 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-50 transition-colors"
                         >
                             <Star className="h-5 w-5 text-blue-500" />
@@ -243,7 +249,7 @@ const DiscoverPage: React.FC = () => {
                         <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
-                            onClick={() => toast.info('Boost feature available with Premium!')}
+                            onClick={() => toast('Boost feature available with Premium!')}
                             className="w-12 h-12 bg-white border-2 border-purple-300 rounded-full flex items-center justify-center shadow-lg hover:bg-purple-50 transition-colors"
                         >
                             <Zap className="h-5 w-5 text-purple-500" />

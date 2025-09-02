@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useAppDispatch } from '../../hooks/hooks';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell, Heart, MessageCircle, User, Check, Star } from 'lucide-react';
 import { RootState } from '../../store';
@@ -9,7 +10,7 @@ import Button from '../../components/ui/Button';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 const NotificationsPage: React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const { notifications, unreadCount, isLoading } = useSelector((state: RootState) => state.notifications);
 
     useEffect(() => {

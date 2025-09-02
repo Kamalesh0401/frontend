@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { useAppDispatch } from '../../hooks/hooks';
 import { RootState } from '../../store';
 import { logout } from '../../store/slices/authSlice';
-import { 
-  Heart, 
-  MessageCircle, 
-  User, 
-  Bell, 
-  Settings, 
-  LogOut, 
+import {
+  Heart,
+  MessageCircle,
+  User,
+  Bell,
+  Settings,
+  LogOut,
   Search,
   Crown,
   Shield
@@ -19,16 +20,15 @@ import { motion } from 'framer-motion';
 const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const { unreadCount } = useSelector((state: RootState) => state.notifications);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logout());   // ✅ now dispatch knows it's a thunk
     navigate('/login');
   };
-
   const navItems = [
     { path: '/discover', icon: Search, label: 'Discover' },
     { path: '/matches', icon: Heart, label: 'Matches' },
@@ -55,18 +55,17 @@ const Navbar: React.FC = () => {
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname.startsWith(item.path);
-              
+
               return (
                 <Link
                   key={item.path}
                   to={item.path}
                   className="relative group"
                 >
-                  <div className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-all duration-200 ${
-                    isActive 
-                      ? 'text-pink-600 bg-pink-50' 
-                      : 'text-gray-600 hover:text-pink-600 hover:bg-pink-50'
-                  }`}>
+                  <div className={`flex items-center space-x-1 px-3 py-2 rounded-lg transition-all duration-200 ${isActive
+                    ? 'text-pink-600 bg-pink-50'
+                    : 'text-gray-600 hover:text-pink-600 hover:bg-pink-50'
+                    }`}>
                     <Icon className="h-5 w-5" />
                     <span className="font-medium">{item.label}</span>
                     {item.badge && item.badge > 0 && (
@@ -171,14 +170,13 @@ const Navbar: React.FC = () => {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname.startsWith(item.path);
-            
+
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center p-2 ${
-                  isActive ? 'text-pink-600' : 'text-gray-600'
-                }`}
+                className={`flex flex-col items-center p-2 ${isActive ? 'text-pink-600' : 'text-gray-600'
+                  }`}
               >
                 <div className="relative">
                   <Icon className="h-5 w-5" />

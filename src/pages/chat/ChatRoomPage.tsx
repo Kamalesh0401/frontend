@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { useAppDispatch } from '../../hooks/hooks';
 import { formatDistanceToNow } from 'date-fns';
 import {
     ArrowLeft,
@@ -28,7 +29,7 @@ import toast from 'react-hot-toast';
 const ChatRoomPage: React.FC = () => {
     const { chatId } = useParams<{ chatId: string }>();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const { user } = useSelector((state: RootState) => state.auth);
     const { activeChat, messages, typingUsers, isConnected } = useSelector((state: RootState) => state.chat);
     const [newMessage, setNewMessage] = useState('');
@@ -148,14 +149,14 @@ const ChatRoomPage: React.FC = () => {
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => toast.info('Voice call feature coming soon!')}
+                            onClick={() => toast('Voice call feature coming soon!')}
                         >
                             <Phone className="h-5 w-5" />
                         </Button>
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => toast.info('Video call feature coming soon!')}
+                            onClick={() => toast('Video call feature coming soon!')}
                         >
                             <Video className="h-5 w-5" />
                         </Button>
@@ -192,8 +193,8 @@ const ChatRoomPage: React.FC = () => {
                                 <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`max-w-xs lg:max-w-md ${isOwn ? 'order-2' : 'order-1'}`}>
                                         <Card className={`p-3 ${isOwn
-                                                ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'
-                                                : 'bg-white text-gray-900'
+                                            ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'
+                                            : 'bg-white text-gray-900'
                                             }`}>
                                             {message.type === 'image' ? (
                                                 <img
@@ -250,7 +251,7 @@ const ChatRoomPage: React.FC = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => toast.info('Image sharing feature coming soon!')}
+                        onClick={() => toast('Image sharing feature coming soon!')}
                     >
                         <Image className="h-5 w-5" />
                     </Button>
@@ -268,7 +269,7 @@ const ChatRoomPage: React.FC = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => toast.info('Emoji picker coming soon!')}
+                        onClick={() => toast('Emoji picker coming soon!')}
                     >
                         <Smile className="h-5 w-5" />
                     </Button>
