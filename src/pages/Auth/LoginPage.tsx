@@ -44,10 +44,21 @@ const LoginPage: React.FC = () => {
 
     const onSubmit = async (data: LoginForm) => {
         try {
-            await dispatch(login(data)).unwrap(); // ✅ Now works without TS error
+            console.log('Starting login...');
+            const result = await dispatch(login(data)).unwrap();
+            console.log('Login successful, result:', result);
+
+            // Check the auth state after login
+            // const authState = store.getState().auth;
+            // console.log('Auth state after login:', authState);
+
             toast.success('Welcome back!');
-            navigate('/discover');
+
+            // Navigate immediately - the state should be updated now
+            navigate('/discover', { replace: true });
+
         } catch (err: any) {
+            console.error('Login failed:', err);
             toast.error(err.message || 'Login failed');
         }
     };

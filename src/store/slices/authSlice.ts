@@ -117,6 +117,7 @@ export const login = createAsyncThunk<AuthResponse, { email: string; password: s
         const response = await AuthService.login(credentials);
         localStorage.setItem('token', response.token);
         localStorage.setItem('refreshToken', response.refreshToken);
+        console.log('Login response:', response); // Debugging line
         return response;
     }
 );
