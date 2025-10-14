@@ -14,7 +14,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 // Auth Pages
 import LoginPage from "./pages/Auth/LoginPage";
 import RegisterPage from "./pages/Auth/RegisterPage";
-//import ProfilePage from "./pages/Auth/ProfilePage";
+import ProfilePage from "./pages/Auth/ProfilePage";
 
 // Main Pages
 import DiscoverPage from "./pages/discover/DiscoverPage";
@@ -59,7 +59,7 @@ function App() {
               <Route path="premium" element={<PremiumPage />} />
 
               {/* Placeholder routes */}
-              {/* <Route path="profile" element={<ProfilePage />} /> */}
+              <Route path="profile" element={<ProfilePage />} />
               <Route
                 path="settings"
                 element={

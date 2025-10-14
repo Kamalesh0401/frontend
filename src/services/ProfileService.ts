@@ -1,144 +1,119 @@
-import { Profile } from '../types';
+// src/services/ProfileService.ts
+import { Profile } from "../types";
+
+const API_BASE = "http://localhost:5000";
+
+// src/utils/authHeaders.ts or inside ProfileService.ts
+
+export const authHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export class ProfileService {
-    private static baseUrl = '/api/v1/profile';
+  private static baseUrl = `${API_BASE}/api/profile`;
 
-    static async createProfile(profileData: Partial<Profile>): Promise<Profile> {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+  static async createProfile(profileData: Partial<Profile>): Promise<Profile> {
+    const res = await fetch(`${this.baseUrl}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeaders(),
+      },
+      body: JSON.stringify(profileData),
+    });
+    if (!res.ok)
+      throw new Error((await res.json()).message || "Failed to create profile");
+    return res.json();
+  }
 
-        const profile: Profile = {
-            id: Date.now().toString(),
-            userId: '1', // Mock user ID
-            bio: profileData.bio || '',
-            age: profileData.age || 25,
-            location: profileData.location || {
-                city: 'San Francisco',
-                country: 'USA',
-                coordinates: { lat: 37.7749, lng: -122.4194 }
-            },
-            images: profileData.images || [
-                'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=400'
-            ],
-            interests: profileData.interests || ['Travel', 'Music', 'Photography'],
-            lookingFor: profileData.lookingFor || 'relationship',
-            completionPercentage: 75,
-            isVisible: true,
-            verificationStatus: 'pending',
-            preferences: {
-                ageRange: [22, 35],
-                maxDistance: 50,
-                showOnlineOnly: false,
-            },
-        };
+  static async updateProfile(profileData: Partial<Profile>): Promise<Profile> {
+    if (!profileData.id) throw new Error("Profile id required for update");
+    const res = await fetch(`${this.baseUrl}/${profileData.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeaders(),
+      },
+      body: JSON.stringify(profileData),
+    });
+    if (!res.ok)
+      throw new Error((await res.json()).message || "Failed to update profile");
+    return res.json();
+  }
 
-        return profile;
-    }
+  static async getProfile(userId: string): Promise<Profile> {
+    const res = await fetch(`${this.baseUrl}/${userId}`, {
+      headers: { ...authHeaders() },
+    });
+    if (!res.ok)
+      throw new Error((await res.json()).message || "Failed to fetch profile");
 
-    static async updateProfile(profileData: Partial<Profile>): Promise<Profile> {
-        await new Promise(resolve => setTimeout(resolve, 800));
+    console.log("Fetched profile response:", res.json());
+    return res.json();
+  }
 
-        // Mock updated profile
-        return {
-            ...profileData as Profile,
-            completionPercentage: this.calculateCompletionPercentage(profileData),
-        };
-    }
+  // getMatches optionally accepts userId (for server to filter by preferences)
+  static async getMatches(
+    userId?: string,
+    page = 1,
+    limit = 10
+  ): Promise<Profile[]> {
+    const params = new URLSearchParams();
+    if (userId) params.append("userId", userId);
+    params.append("page", String(page));
+    params.append("limit", String(limit));
 
-    static async getProfile(userId: string): Promise<Profile> {
-        await new Promise(resolve => setTimeout(resolve, 500));
+    const res = await fetch(`${this.baseUrl}/matches/potential?${params.toString()}`, {
+      headers: { ...authHeaders() },
+    });
+    
+    if (!res.ok)
+      throw new Error((await res.json()).message || "Failed to fetch matches");
+    const payload = await res.json();
+    console.log("Fetching matches with payload:", payload);
+    // Assume backend returns { matches: [...] } or direct array — normalize
+    return Array.isArray(payload) ? payload : payload.matches || [];
+  }
 
-        return {
-            id: userId,
-            userId,
-            bio: 'Love traveling, photography, and meeting new people. Looking for genuine connections!',
-            age: 28,
-            location: {
-                city: 'Los Angeles',
-                country: 'USA',
-                coordinates: { lat: 34.0522, lng: -118.2437 }
-            },
-            images: [
-                'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?w=400',
-                'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?w=400',
-            ],
-            interests: ['Travel', 'Photography', 'Hiking', 'Coffee', 'Movies'],
-            lookingFor: 'relationship',
-            completionPercentage: 95,
-            isVisible: true,
-            verificationStatus: 'verified',
-            preferences: {
-                ageRange: [25, 35],
-                maxDistance: 30,
-                showOnlineOnly: false,
-            },
-        };
-    }
+  static async uploadImage(file: File): Promise<string> {
+    const fd = new FormData();
+    fd.append("image", file);
+    const res = await fetch(`${this.baseUrl}/upload`, {
+      method: "POST",
+      headers: { ...authHeaders() },
+      body: fd,
+    });
+    if (!res.ok)
+      throw new Error((await res.json()).message || "Failed to upload image");
+    const json = await res.json();
+    // backend should return { imageUrl: "..." }
+    return json.imageUrl || json.url || "";
+  }
 
-    static async getMatches(): Promise<Profile[]> {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+  static async likeProfile(profileId: string): Promise<{ matched: boolean }> {
+    const res = await fetch(`${this.baseUrl}/${profileId}/like`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeaders(),
+      },
+    });
+    if (!res.ok)
+      throw new Error((await res.json()).message || "Failed to like profile");
+    return res.json();
+  }
 
-        return [
-            {
-                id: '2',
-                userId: '2',
-                bio: 'Adventure seeker and coffee enthusiast. Always up for trying new restaurants!',
-                age: 26,
-                location: { city: 'San Francisco', country: 'USA' },
-                images: ['https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?w=400'],
-                interests: ['Food', 'Adventure', 'Travel'],
-                lookingFor: 'dating',
-                completionPercentage: 88,
-                isVisible: true,
-                verificationStatus: 'verified',
-                preferences: { ageRange: [24, 32], maxDistance: 25, showOnlineOnly: false },
-            },
-            {
-                id: '3',
-                userId: '3',
-                bio: 'Dog lover, yoga instructor, and amateur chef. Looking for someone to share life\'s adventures!',
-                age: 29,
-                location: { city: 'San Francisco', country: 'USA' },
-                images: ['https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?w=400'],
-                interests: ['Yoga', 'Cooking', 'Dogs', 'Nature'],
-                lookingFor: 'relationship',
-                completionPercentage: 92,
-                isVisible: true,
-                verificationStatus: 'verified',
-                preferences: { ageRange: [26, 35], maxDistance: 40, showOnlineOnly: false },
-            }
-        ];
-    }
-
-    static async uploadImage(file: File): Promise<string> {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Mock image upload - in real app this would upload to S3/Cloudinary
-        return URL.createObjectURL(file);
-    }
-
-    static async likeProfile(profileId: string): Promise<{ matched: boolean }> {
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Mock 30% chance of matching
-        const matched = Math.random() > 0.7;
-        return { matched };
-    }
-
-    static async passProfile(profileId: string): Promise<void> {
-        await new Promise(resolve => setTimeout(resolve, 200));
-    }
-
-    private static calculateCompletionPercentage(profile: Partial<Profile>): number {
-        let completed = 0;
-        const total = 8;
-
-        if (profile.bio) completed++;
-        if (profile.age) completed++;
-        if (profile.location) completed++;
-        if (profile.images && profile.images.length > 0) completed++;
-        if (profile.interests && profile.interests.length > 0) completed++;
-        if (profile.lookingFor) completed++;
-
-        return Math.round((completed / total) * 100);
-    }
+  static async passProfile(profileId: string): Promise<void> {
+    const res = await fetch(`${this.baseUrl}/${profileId}/pass`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeaders(),
+      },
+    });
+    if (!res.ok)
+      throw new Error((await res.json()).message || "Failed to pass profile");
+    return;
+  }
 }
