@@ -28,7 +28,9 @@ export class ProfileService {
   }
 
   static async updateProfile(profileData: Partial<Profile>): Promise<Profile> {
-    if (!profileData.id) throw new Error("Profile id required for update");
+    
+    if (!profileData?.id) throw new Error("Profile id required for update");
+    
     const res = await fetch(`${this.baseUrl}/${profileData.id}`, {
       method: "PUT",
       headers: {
@@ -49,7 +51,6 @@ export class ProfileService {
     if (!res.ok)
       throw new Error((await res.json()).message || "Failed to fetch profile");
 
-    console.log("Fetched profile response:", res.json());
     return res.json();
   }
 

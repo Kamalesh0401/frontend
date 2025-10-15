@@ -153,6 +153,7 @@ const profileSlice = createSlice({
       })
       .addCase(fetchProfile.fulfilled, (s, a) => {
         s.isLoading = false;
+        console.log("Fetched profile:", a.payload);
         s.profile = a.payload;
       })
       .addCase(fetchProfile.rejected, (s, a) => {

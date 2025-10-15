@@ -170,13 +170,13 @@ const DiscoverPage: React.FC = () => {
                     {/* Image Section */}
                     <div className="relative h-3/4 bg-gray-200">
                       <img
-                        src={profile.images[imageIndex] || profile.images[0]}
+                        src={profile?.images || profile?.images}
                         alt={`${profile.bio}`}
                         className="w-full h-full object-cover"
                       />
 
                       {/* Image Navigation */}
-                      {profile.images.length > 1 && index === 0 && (
+                      {profile.images !== "" && index === 0 && (
                         <>
                           <div
                             className="absolute top-0 left-0 w-1/2 h-full z-10"
@@ -189,14 +189,14 @@ const DiscoverPage: React.FC = () => {
 
                           {/* Image Indicators */}
                           <div className="absolute top-4 left-4 right-4 flex space-x-1">
-                            {profile.images.map((_, i) => (
+                            {/* {profile.images.map((_, i) => (
                               <div
                                 key={i}
                                 className={`flex-1 h-1 rounded-full ${
                                   i === imageIndex ? "bg-white" : "bg-white/30"
                                 }`}
                               />
-                            ))}
+                            ))} */}
                           </div>
                         </>
                       )}
